@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ponymapscross/settings/testData.dart';
+import 'settings/colors.dart';
+import 'screens/ubicaciones.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,18 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
       home: const MyHomePage(title: 'PONYMAPS'),
     );
   }
@@ -51,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Home'),
-    Text('Search'),
+    Ubicaciones(items: buildings),
     Text('Favorites'),
     Text('Profile'),
   ];
@@ -81,18 +74,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: _isSearchBarVisible
-            ? TextField(
-                style: TextStyle(color: Colors.white),
+            ? const TextField(
+                //style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintText: 'Buscar...',
+                  //hintStyle: TextStyle(color: Colors.white70),
                 ),
               )
             : const Text('PONYMAPS'),
         actions: [
           IconButton(
             onPressed: _toggleSearchBarVisibility,
-            icon: _isSearchBarVisible ? Icon(Icons.close) : Icon(Icons.search),
+            icon: _isSearchBarVisible ? const Icon(Icons.close) : const Icon(Icons.search),
           ),
         ],
       ),
@@ -119,7 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        //backgroundColor: Theme.of(context).colorScheme.tertiary,
         onTap: _onItemTapped,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
