@@ -28,3 +28,47 @@ const List<Map<String, String>> buildings = [
 {"id": "27", "building": "U", "name": "Gimnasio Auditorio"},
 {"id": "28", "building": "V", "name": "Departamento De Actividades Extraescolares"},
 ];
+
+const List<Map<String, String>> schoolEvents = [
+  {
+    'title': 'Science Fair',
+    'date': 'April 1, 2023',
+    'location': 'School Gym',
+    'description':
+    'The annual science fair is a showcase of our students\' research projects and experiments. Come see the amazing work they\'ve done!',
+    'imageUrl': 'assets/images/science_fair.jpg',
+  },
+  {
+    'title': 'Math Olympiad',
+    'date': 'May 15, 2023',
+    'location': 'School Auditorium',
+    'description':
+    'Our top math students will compete against each other and students from other schools in this prestigious competition. Come cheer them on!',
+    'imageUrl': 'assets/images/math_olympiad.jpg',
+  },
+  {
+    'title': 'Spelling Bee',
+    'date': 'June 2, 2023',
+    'location': 'School Library',
+    'description':
+    'Our best spellers will face off against each other in this annual competition. Who will be the champion this year?',
+    'imageUrl': 'assets/images/spelling_bee.jpg',
+  },
+  {
+    'title': 'Art Exhibition',
+    'date': 'July 10, 2023',
+    'location': 'School Art Room',
+    'description':
+    'Come see the beautiful artwork our students have created this year! The exhibition will showcase a variety of mediums and styles.',
+    'imageUrl': 'assets/images/art_exhibition.jpg',
+  },
+  {
+    'title': 'Music Festival',
+    'date': 'August 20, 2023',
+    'location': 'School Auditorium',
+    'description':
+    'Our talented musicians will perform a variety of genres in this annual music festival. Come enjoy an evening of entertainment!',
+    'imageUrl': 'assets/images/music_festival.jpg',
+  },
+];
+
