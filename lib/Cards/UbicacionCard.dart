@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class UbicacionCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final String imageUrl;
+  final String imagePath;
   final VoidCallback? onTap;
 
   const UbicacionCard({
     Key? key,
     required this.title,
     required this.subtitle,
-    required this.imageUrl,
+    required this.imagePath,
     this.onTap,
   }) : super(key: key);
 
@@ -34,9 +34,9 @@ class UbicacionCard extends StatelessWidget {
                 topRight: Radius.circular(10.0),
               ),
               child: SizedBox(
-                height: 130.0,
-                child: Image.network(
-                  imageUrl,
+                height: 150.0,
+                child: Image.asset(
+                  imagePath,
                   fit: BoxFit.cover,
                 ),
               ),

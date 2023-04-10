@@ -15,7 +15,7 @@ class Ubicaciones extends StatelessWidget {
         return UbicacionCard(
           title: items[index]['building'] ?? 'Desconocido', // Use the 'name' value as the title
           subtitle: items[index]['name'] ?? '', // Use the 'description' value as the subtitle
-          imageUrl: 'https://picsum.photos/seed/$index/300/150',
+          imagePath: 'assets/pony_plaza.jpg',
           onTap: () {
             // Handle the card tap event here
           },
