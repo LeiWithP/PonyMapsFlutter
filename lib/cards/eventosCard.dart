@@ -70,10 +70,12 @@ class _ExpandableCardState extends State<EventosCard> {
               height: isExpanded ? 150.0 : 0.0,
               child: isExpanded
                   ? Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  widget.description,
-                  style: TextStyle(fontSize: 20.0),
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Text(
+                    widget.description,
+                    style: const TextStyle(fontSize: 20.0),
+                  ),
                 ),
               )
                   : null,
