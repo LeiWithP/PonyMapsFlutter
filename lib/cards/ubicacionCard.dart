@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class UbicacionCard extends StatefulWidget {
   final String title;
   final String subtitle;
+  final String areas;
   final String imagePath;
 
   const UbicacionCard({
     Key? key,
     required this.title,
     required this.subtitle,
+    required this.areas,
     required this.imagePath,
   }) : super(key: key);
 
@@ -62,17 +64,15 @@ class _ExpandableCardState extends State<UbicacionCard> {
               ),
             ),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 100),
-              height: isExpanded ? 120.0 : 0.0,
-              child: isExpanded
-                  ? const Padding(
-                padding: EdgeInsets.all(16.0),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              height: isExpanded ? null : 0,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Expanded Content',
-                  style: TextStyle(fontSize: 20.0),
+                  widget.areas,
                 ),
-              )
-                  : null,
+              ),
             ),
           ],
         ),
