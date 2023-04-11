@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 
-class UbicacionCard extends StatelessWidget {
+class UbicacionCard extends StatefulWidget {
   final String title;
   final String subtitle;
+  final String areas;
   final String imagePath;
-  final VoidCallback? onTap;
 
   const UbicacionCard({
     Key? key,
     required this.title,
     required this.subtitle,
+    required this.areas,
     required this.imagePath,
-    this.onTap,
   }) : super(key: key);
+
+  @override
+  _ExpandableCardState createState() => _ExpandableCardState();
+}
+
+class _ExpandableCardState extends State<UbicacionCard> {
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +31,11 @@ class UbicacionCard extends StatelessWidget {
       ),
       color: Theme.of(context).colorScheme.onSecondary,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          setState(() {
+            isExpanded = !isExpanded;
+          });
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -33,22 +44,34 @@ class UbicacionCard extends StatelessWidget {
                 topLeft: Radius.circular(10.0),
                 topRight: Radius.circular(10.0),
               ),
-              child: SizedBox(
-                height: 150.0,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: isExpanded ? 250.0 : 150.0,
                 child: Image.asset(
-                  imagePath,
+                  widget.imagePath,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             ListTile(
               title: Text(
-                title,
-                style: const TextStyle(fontSize: 40.0), // set the font size to 20
+                widget.title,
+                style: const TextStyle(fontSize: 40.0),
               ),
               subtitle: Text(
-                subtitle,
-                style: const TextStyle(fontSize: 20.0), // set the font size to 20
+                widget.subtitle,
+                style: const TextStyle(fontSize: 20.0),
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              height: isExpanded ? null : 0,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  widget.areas,
+                ),
               ),
             ),
           ],
