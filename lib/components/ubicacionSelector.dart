@@ -10,11 +10,12 @@ class UbicacionSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: FloatingActionButton(
-        onPressed: () => {},
-        child: const Icon(Icons.directions),
+    return Container(
+      width: 300,
+      height: 150,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey[200],
       ),
     );
   }

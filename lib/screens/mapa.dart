@@ -10,6 +10,7 @@ class Mapa extends StatefulWidget {
 
 class _MapaState extends State<Mapa> {
   bool showSelector = false;
+  double containerHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,32 +30,20 @@ class _MapaState extends State<Mapa> {
               onPressed: () {
                 setState(() {
                   showSelector = !showSelector;
+                  containerHeight = showSelector ? 200.0 : 0.0;
                 });
               },
               child: const Icon(Icons.directions),
             ),
           ),
         ),
-        if (showSelector) // Show the container only when showSelector is true
-          Positioned(
-            bottom: 70,
-            right: 16,
-            child: Container(
-              width: 200,
-              height: 200,
-              color: Colors.blue,
-              child: const Center(
-                child: Text(
-                  'Your content here',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        AnimatedPositioned(
+          bottom: showSelector ? 10 : -200,
+          right: 70,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutBack,
+          child: UbicacionSelector(),
+        ),
       ],
     );
   }
