@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ponymapscross/screens/eventos.dart';
+import 'package:ponymapscross/screens/mapa.dart';
 import 'package:ponymapscross/settings/testData.dart';
 import 'settings/colors.dart';
 import 'screens/ubicaciones.dart';
@@ -44,7 +45,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('Mapa'),
+    Mapa(),
     Ubicaciones(items: buildings),
     Eventos(items: schoolEvents),
     Text('Horarios'),
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 350),
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
