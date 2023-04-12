@@ -4,6 +4,7 @@ import 'package:ponymapscross/screens/mapa.dart';
 import 'package:ponymapscross/settings/testData.dart';
 import 'settings/colors.dart';
 import 'screens/ubicaciones.dart';
+import 'package:sizer/sizer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,11 +16,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: const MyHomePage(title: 'PONYMAPS'),
+
+    return Sizer(
+        builder: (context, orientation, deviceType) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+            darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+            home: const MyHomePage(title: 'PONYMAPS'),
+          );
+        },
     );
   }
 }
