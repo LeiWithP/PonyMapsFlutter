@@ -19,6 +19,7 @@ class Mapa extends StatefulWidget {
 
 class _MapaState extends State<Mapa> {
   bool showSelector = false;
+  double containerHeight = 0;
   final mapController = MapController();
 
   PolylineLayer polylineLayer = PolylineLayer(
@@ -28,6 +29,8 @@ class _MapaState extends State<Mapa> {
 
   late PolylineLayer polyLineLayer;
   late Polyline currentPolyline;
+
+  double containerHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +72,8 @@ class _MapaState extends State<Mapa> {
                 'accessToken': AppKeys.mapBoxAccessToken,
               },
               userAgentPackageName: 'com.example.app',
-            ),/*
+            ),
+            /*
             polyLineLayer = PolylineLayer(
               polylineCulling: false,
               saveLayers: true,
@@ -143,35 +147,20 @@ class _MapaState extends State<Mapa> {
               onPressed: () {
                 setState(() {
                   showSelector = !showSelector;
+                  containerHeight = showSelector ? 200.0 : 0.0;
                 });
               },
               child: const Icon(Icons.directions),
             ),
           ),
         ),
-        if (showSelector) // Show the container only when showSelector is true
-          Positioned(
-            bottom: 10.h,
-            right: 16,
-            child: Container(
-              width: 90.w,
-              height: 20.h,
-              color: Colors.blue,
-              child: Center(
-                child: TextButton(
-                  onPressed: () {
-                    polylinePoints = [];
-                    polylinePoints.add(LatLng(19.72318, -101.18493)); // Agrega un punto de ejemplo
-                    polylinePoints.add(LatLng(19.72298, -101.18509));
-                    addPolyline();
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(polylinePoints.length.toString())));
-                  },
-                  child: Text('Gradient'),
-                ),
-              ),
-            ),
-          ),
+        AnimatedPositioned(
+          bottom: showSelector ? 10 : -200,
+          right: 70,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutBack,
+          child: UbicacionSelector(),
+        ),
       ],
     );
   }

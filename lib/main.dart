@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ponymapscross/screens/eventos.dart';
+import 'package:ponymapscross/screens/horarios.dart';
 import 'package:ponymapscross/screens/mapa.dart';
 import 'package:ponymapscross/settings/testData.dart';
 import 'settings/colors.dart';
@@ -54,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Mapa(),
     Ubicaciones(items: buildings),
     Eventos(items: schoolEvents),
-    Text('Horarios'),
+    Horarios(itemList: ['Item 1', 'Item 2', 'Item 3'],),
   ];
 
   void _onItemTapped(int index) {
