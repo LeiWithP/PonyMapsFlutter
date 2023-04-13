@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:ponymapscross/constants/app_constants.dart';
 import 'package:sizer/sizer.dart';
@@ -12,7 +13,6 @@ import '../models/map_marker_model.dart';
 
 class Mapa extends StatefulWidget {
   const Mapa({Key? key}) : super(key: key);
-
   @override
   _MapaState createState() => _MapaState();
 }
@@ -20,6 +20,14 @@ class Mapa extends StatefulWidget {
 class _MapaState extends State<Mapa> {
   bool showSelector = false;
   final mapController = MapController();
+
+  PolylineLayer polylineLayer = PolylineLayer(
+    polylines: [],
+  );
+  List<LatLng> polylinePoints = [];
+
+  late PolylineLayer polyLineLayer;
+  late Polyline currentPolyline;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +42,8 @@ class _MapaState extends State<Mapa> {
             minZoom: 16.0,
             bounds: AppConstants.boundariesCampus1,
             maxBounds: AppConstants.boundariesCampus1,
-          ),/*
+          ),
+          /*
           nonRotatedChildren: [
             // This does NOT fulfill Mapbox's requirements for attribution
             // See https://docs.mapbox.com/help/getting-started/attribution/
@@ -60,44 +69,61 @@ class _MapaState extends State<Mapa> {
                 'accessToken': AppKeys.mapBoxAccessToken,
               },
               userAgentPackageName: 'com.example.app',
-            ),
+            ),/*
+            polyLineLayer = PolylineLayer(
+              polylineCulling: false,
+              saveLayers: true,
+              polylines: [
+                Polyline(
+                  points: [
+
+                    LatLng(19.72299, -101.18582),
+                    LatLng(19.72325, -101.18541),
+                    LatLng(19.72344, -101.18505),
+
+
+                  ],
+                  color: Colors.blue,
+                  strokeWidth: 5.0,
+                )
+              ],
+            ),*/
+            polylineLayer,
             MarkerLayer(
               markers: [
                 for (int i = 0; i < mapMarkers.length; i++)
                   Marker(
-                    height: 20,
-                    width: 20,
+                    height: 30,
+                    width: 30,
                     point: mapMarkers[i].location,
                     builder: (_) {
                       return GestureDetector(
-                        onDoubleTap: (){
+                        onDoubleTap: () {
                           showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
-                                title: Text( mapMarkers[i].title ),
-                                content: UbicacionCard(
-                                  title: mapMarkers[i].title, // Use the 'name' value as the title
-                                  subtitle: mapMarkers[i].title, // Use the 'description' value as the subtitle
-                                  areas: mapMarkers[i].title,
-                                  imagePath: 'assets/pony_plaza.jpg',
-                                )
-                              )
-                          );
-
+                                  title: Text(mapMarkers[i].title),
+                                  content: UbicacionCard(
+                                    title: mapMarkers[i].title,
+                                    // Use the 'name' value as the title
+                                    subtitle: mapMarkers[i].title,
+                                    // Use the 'description' value as the subtitle
+                                    areas: mapMarkers[i].title,
+                                    imagePath: 'assets/pony_plaza.jpg',
+                                  )));
                         },
                         onTap: () {
-                          ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
-                            content: Text('Normal Tap'),
-                          ));
+                          //a();
 
+                          /*ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
+                            content: Text('Normal Tap'),
+                          ));*/
                         },
-                        onLongPress: (){
+                        onLongPress: () {
                           ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
                             content: Text('Long Tap'),
                           ));
-
                         },
-
                         child: SvgPicture.asset(
                           'assets/icons/map_marker.svg',
                         ),
@@ -133,7 +159,14 @@ class _MapaState extends State<Mapa> {
               color: Colors.blue,
               child: Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    polylinePoints = [];
+                    polylinePoints.add(LatLng(19.72318, -101.18493)); // Agrega un punto de ejemplo
+                    polylinePoints.add(LatLng(19.72298, -101.18509));
+                    addPolyline();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(polylinePoints.length.toString())));
+                  },
                   child: Text('Gradient'),
                 ),
               ),
@@ -143,7 +176,19 @@ class _MapaState extends State<Mapa> {
     );
   }
 
-  void a(){
+  void addPolyline() {
+    setState(() {
+      polylineLayer = PolylineLayer(
+        polylines: [
+          Polyline(
+            points: polylinePoints,
+            color: Colors.blue,
+            strokeWidth: 4.0,
+          ),
+        ],
+      );
 
+      showSelector = false;
+    });
   }
 }
