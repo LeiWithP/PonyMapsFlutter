@@ -46,10 +46,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
-    Mapa(),
+    Mapa(key: PageStorageKey('mapa')),
     Ubicaciones(items: buildings),
     Eventos(items: schoolEvents),
-    Horarios(itemList: ['Item 1', 'Item 2', 'Item 3'],),
+    Horarios(),
   ];
 
   void _onItemTapped(int index) {
