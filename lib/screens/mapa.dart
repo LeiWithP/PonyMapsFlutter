@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,11 +9,15 @@ import 'package:ponymapscross/constants/app_constants.dart';
 import 'package:sizer/sizer.dart';
 
 import '../cards/ubicacionCard.dart';
+import '../components/ubicacionSelector.dart';
 import '../constants/app_keys.dart';
 import '../models/map_marker_model.dart';
 
+import 'package:http/http.dart' as http;
+
 class Mapa extends StatefulWidget {
   const Mapa({Key? key}) : super(key: key);
+
   @override
   _MapaState createState() => _MapaState();
 }
@@ -29,8 +34,6 @@ class _MapaState extends State<Mapa> {
 
   late PolylineLayer polyLineLayer;
   late Polyline currentPolyline;
-
-  double containerHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +69,7 @@ class _MapaState extends State<Mapa> {
           children: [
             TileLayer(
               urlTemplate:
-                  "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+              "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
               additionalOptions: const {
                 'mapStyleId': AppKeys.mapBoxStyleId,
                 'accessToken': AppKeys.mapBoxAccessToken,
@@ -105,23 +108,26 @@ class _MapaState extends State<Mapa> {
                         onDoubleTap: () {
                           showDialog(
                               context: context,
-                              builder: (_) => AlertDialog(
-                                  title: Text(mapMarkers[i].title),
-                                  content: UbicacionCard(
-                                    title: mapMarkers[i].title,
-                                    // Use the 'name' value as the title
-                                    subtitle: mapMarkers[i].title,
-                                    // Use the 'description' value as the subtitle
-                                    areas: mapMarkers[i].title,
-                                    imagePath: 'assets/pony_plaza.jpg',
-                                  )));
+                              builder: (_) =>
+                                  AlertDialog(
+                                      title: Text(mapMarkers[i].title),
+                                      content: UbicacionCard(
+                                        title: mapMarkers[i].title,
+                                        // Use the 'name' value as the title
+                                        subtitle: mapMarkers[i].title,
+                                        // Use the 'description' value as the subtitle
+                                        areas: mapMarkers[i].title,
+                                        imagePath: 'assets/pony_plaza.jpg',
+                                      )));
                         },
-                        onTap: () {
+                        onTap: () async {
                           //a();
-
                           /*ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
                             content: Text('Normal Tap'),
                           ));*/
+
+                          final apiData = await fetchApiData();
+                          print(apiData.data);
                         },
                         onLongPress: () {
                           ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
@@ -179,5 +185,32 @@ class _MapaState extends State<Mapa> {
 
       showSelector = false;
     });
+  }
+
+  Future<ApiResponse> fetchApiData() async {
+    final apiUrl = Uri.parse(
+        'https://api.mapbox.com/directions/v5/mapbox/walking/-101.185404%2C19.723222%3B-101.185026%2C19.723415?alternatives=false&continue_straight=true&geometries=geojson&overview=simplified&steps=false&access_token=pk.eyJ1IjoiYW5nZWxzMDEwNyIsImEiOiJjbGJ2anRvdXAwdTMwM3ZxbzFkeWJndThqIn0.Ep3N8cDHH3Iwr9YLDgQn8g');
+    final response = await http.get(apiUrl);
+
+    if (response.statusCode == 200) {
+      // API call was successful
+      final jsonResponse = json.decode(response.body);
+      return ApiResponse.fromJson(jsonResponse);
+    } else {
+      // API call failed
+      throw Exception('Failed to fetch data from API');
+    }
+  }
+}
+
+class ApiResponse {
+  final String data;
+
+  ApiResponse({required this.data});
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    return ApiResponse(
+      data: json[0],
+    );
   }
 }
