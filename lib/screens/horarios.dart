@@ -49,10 +49,6 @@ class _HorariosState extends State<Horarios> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        //Text(
-          //'$_selectedItem1 - $_selectedItem2 - $_selectedDay',
-          //style: TextStyle(fontSize: 18),
-        //),
         Expanded(
             child: ListView.builder(
             itemCount: items.length,
