@@ -51,12 +51,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    Mapa(key: PageStorageKey('mapa')),
-    Ubicaciones(items: buildings),
-    Eventos(items: schoolEvents),
-    Horarios(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -100,7 +94,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
-        child: _widgetOptions.elementAt(_selectedIndex),
+        //child: _widgetOptions.elementAt(_selectedIndex),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            PageStorage(
+                bucket: PageStorageBucket(),
+                child: const Mapa(),
+            ),
+            PageStorage(
+              bucket: PageStorageBucket(),
+              child: const Ubicaciones(items: buildings),
+            ),
+            PageStorage(
+              bucket: PageStorageBucket(),
+              child: const Eventos(items: schoolEvents),
+            ),
+            PageStorage(
+              bucket: PageStorageBucket(),
+              child: const Horarios(),
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
