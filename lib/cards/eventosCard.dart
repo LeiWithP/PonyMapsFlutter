@@ -32,6 +32,7 @@ class _ExpandableCardState extends State<EventosCard> {
         ),
       ),
       color: Theme.of(context).colorScheme.onSecondary,
+      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
       child: InkWell(
         onTap: () {
           setState(() {
@@ -48,7 +49,7 @@ class _ExpandableCardState extends State<EventosCard> {
               ),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                height: isExpanded ? 210.0 : 200.0,
+                height: isExpanded ? 200.0 : 160.0,
                 child: Image.network(
                   widget.imageUrl,
                   fit: BoxFit.cover,
