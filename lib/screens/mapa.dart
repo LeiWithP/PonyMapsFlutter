@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:ponymapscross/constants/app_constants.dart';
@@ -24,7 +27,7 @@ class Mapa extends StatefulWidget {
   _MapaState createState() => _MapaState();
 }
 
-class _MapaState extends State<Mapa> {
+class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   bool showSelector = false;
   double containerHeight = 0;
   final mapController = MapController();
@@ -34,6 +37,13 @@ class _MapaState extends State<Mapa> {
   );
   List<LatLng> polylinePoints = [];
 
+  int? selectedIndex;
+
+  bool arrivedDest = false;
+  bool activeRoute = true;
+  late Timer _timer;
+  int _start = 10;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -41,13 +51,13 @@ class _MapaState extends State<Mapa> {
         FlutterMap(
           mapController: mapController,
           options: MapOptions(
-            center: AppConstants.tecCampus1,
-            zoom: 17.0,
-            maxZoom: 18.0,
-            minZoom: 16.0,
-            bounds: AppConstants.boundariesCampus1,
-            maxBounds: AppConstants.boundariesCampus1,
-          ),
+              center: AppConstants.tecCampus1,
+              zoom: 17.0,
+              maxZoom: 18.0,
+              minZoom: 10.0,
+              bounds: AppConstants.boundariesCampus1,
+              maxBounds: AppConstants.boundariesCampus1,
+              onTap: (tapPosition, location) => _mapTapped(location)),
           /*
           nonRotatedChildren: [
             // This does NOT fulfill Mapbox's requirements for attribution
@@ -67,10 +77,9 @@ class _MapaState extends State<Mapa> {
           ],*/
           children: [
             TileLayer(
-              urlTemplate:
-              "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
               /*urlTemplate:
-              "https://tile.openstreetmap.org/{z}/{x}/{y}.png",*/
+                  "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",*/
+              urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
               additionalOptions: const {
                 'mapStyleId': AppKeys.mapBoxStyleId,
                 'accessToken': AppKeys.mapBoxAccessToken,
@@ -97,6 +106,20 @@ class _MapaState extends State<Mapa> {
               ],
             ),*/
             polylineLayer,
+            CurrentLocationLayer(
+              followOnLocationUpdate: FollowOnLocationUpdate.once,
+              turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
+              /*style: const LocationMarkerStyle(
+                marker: DefaultLocationMarker
+                  child: Icon(
+                    Icons.navigation,
+                    color: Colors.white,
+                  ),
+                ),
+                markerSize: Size(40, 40),
+                markerDirection: MarkerDirection.heading,
+              ),*/
+            ),
             MarkerLayer(
               markers: [
                 for (int i = 0; i < mapMarkers.length; i++)
@@ -107,19 +130,8 @@ class _MapaState extends State<Mapa> {
                     builder: (_) {
                       return GestureDetector(
                         onDoubleTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) =>
-                                  AlertDialog(
-                                      title: Text(mapMarkers[i].title),
-                                      content: UbicacionCard(
-                                        title: mapMarkers[i].title,
-                                        // Use the 'name' value as the title
-                                        subtitle: mapMarkers[i].title,
-                                        // Use the 'description' value as the subtitle
-                                        areas: mapMarkers[i].title,
-                                        imagePath: 'assets/pony_plaza.jpg',
-                                      )));
+                          _animatedMapMove(mapMarkers[i].location, 18);
+                          selectedIndex = i;
                         },
                         onTap: () async {
                           //a();
@@ -127,14 +139,68 @@ class _MapaState extends State<Mapa> {
                             content: Text('Normal Tap'),
                           ));*/
 
+                          //polylinePoints.add(LatLng(19.72299, -101.18582));
+                          //polylinePoints.add(LatLng(19.72325, -101.18541));
+                          //await addCoordinates(LatLng(19.722989, -101.185827), LatLng(19.723173, -101.184928));
+                          //print(polylinePoints.join(''));
+                          //addPolyline();
 
-                            await addCoordinates(LatLng(19.722989, -101.185827), LatLng(19.723173, -101.184928));
-                            print(polylinePoints.join(''));
-                           //polylinePoints.add(LatLng(19.72299, -101.18582));
-                           //polylinePoints.add(LatLng(19.72325, -101.18541));
-                            addPolyline();
-                          //fetchData();
+                          var a = await _determinePosition();
+                          String message = 'Lat ' + a.latitude.toString() + " Lng " + a.longitude.toString();
+                          ScaffoldMessenger.of(_).showSnackBar(SnackBar(
+                            content: Text(message),
+                          ));
+
+                          /*showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                  title: Text(mapMarkers[i].title),
+                                  content: UbicacionCard(
+                                    title: mapMarkers[i].title,
+                                    // Use the 'name' value as the title
+                                    subtitle: mapMarkers[i].title,
+                                    // Use the 'description' value as the subtitle
+                                    areas: mapMarkers[i].title,
+                                    imagePath: 'assets/pony_plaza.jpg',
+                                  )));*/
                         },
+                        onLongPress: () {
+                          ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
+                            content: Text('Long Tap'),
+                          ));
+                          startLiveRouting();
+                        },
+                        child: AnimatedScale(
+                            duration: const Duration(microseconds: 500),
+                            scale: selectedIndex == i ? 1 : 0.7,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 500),
+                              opacity: (selectedIndex == null)
+                                  ? 1
+                                  : (selectedIndex == i)
+                                      ? 1
+                                      : 0.5,
+                              child: SvgPicture.asset(
+                                'assets/icons/map_marker.svg',
+
+                              ),
+                            )),
+                        /*child: SvgPicture.asset(
+                          'assets/icons/map_marker.svg',
+                        ),*/
+                      );
+                    },
+                  ),
+              ],
+            ),
+            MarkerLayer(
+              markers: [
+                  Marker(
+                    height: 30,
+                    width: 30,
+                    point: AppConstants.tecCampus1,
+                    builder: (_) {
+                      return GestureDetector(
                         onLongPress: () {
                           ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
                             content: Text('Long Tap'),
@@ -176,22 +242,75 @@ class _MapaState extends State<Mapa> {
       ],
     );
   }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+    final latTween = Tween<double>(
+        begin: mapController.center.latitude, end: destLocation.latitude);
+    final lngTween = Tween<double>(
+        begin: mapController.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    var controller = AnimationController(
+        duration: const Duration(milliseconds: 1000), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
+  }
+
+  void startLiveRouting() {
+    const secs = Duration(milliseconds: 3 * 500);
+    _timer = Timer.periodic(
+      secs,
+      (Timer timer) {
+        if ( activeRoute == false || arrivedDest == true) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Map Tapped'),
+          ));
+          /*
+          setState(() {
+
+          });*/
+        }
+      },
+    );
+  }
+
   ///
   /// Routing
   ///
 
   Future<void> addCoordinates(LatLng origen, LatLng destino) async {
-
     final apiData = await fetchApiData(origen, destino);
     var coordinates = apiData.routes.first.geometry.coordinates;
 
-    polylinePoints = coordinates.map(
-            (coordinate) =>
-                LatLng( coordinate.last, coordinate.first)
-    ).toList();
-
-
-
+    polylinePoints = coordinates
+        .map((coordinate) => LatLng(coordinate.last, coordinate.first))
+        .toList();
   }
 
   void addPolyline() {
@@ -210,21 +329,21 @@ class _MapaState extends State<Mapa> {
     });
   }
 
-  Future<ApiResponse> fetchApiData(LatLng origen,LatLng destino) async {
-
+  Future<ApiResponse> fetchApiData(LatLng origen, LatLng destino) async {
     var accessToken = AppKeys.mapBoxAccessToken;
 
-    var ori_lng =  origen.longitude;
-    var ori_lat =  origen.latitude;
+    var oriLng = origen.longitude;
+    var oriLat = origen.latitude;
 
-    var dest_lng =  destino.longitude;
-    var dest_lat =  destino.latitude;
+    var destLng = destino.longitude;
+    var destLat = destino.latitude;
 
-    String urlTemplate = "https://api.mapbox.com/directions/v5/mapbox/walking/$ori_lng,$ori_lat;$dest_lng,$dest_lat?alternatives=false&geometries=geojson&overview=simplified&steps=false&access_token=$accessToken";
+    String urlTemplate =
+        "https://api.mapbox.com/directions/v5/mapbox/walking/$oriLng,$oriLat;$destLng,$destLat?alternatives=false&geometries=geojson&overview=simplified&steps=false&access_token=$accessToken";
 
     final apiUrl = Uri.parse(
         //'https://api.mapbox.com/directions/v5/mapbox/walking/-101.185404%2C19.723222%3B-101.185026%2C19.723415?alternatives=false&continue_straight=true&geometries=geojson&overview=simplified&steps=false&access_token=pk.eyJ1IjoiYW5nZWxzMDEwNyIsImEiOiJjbGJ2anRvdXAwdTMwM3ZxbzFkeWJndThqIn0.Ep3N8cDHH3Iwr9YLDgQn8g');
-      urlTemplate);
+        urlTemplate);
     final response = await http.get(apiUrl);
 
     print("Get data");
@@ -238,7 +357,93 @@ class _MapaState extends State<Mapa> {
       throw Exception('Failed to fetch data from API');
     }
   }
+
+  ///
+  /// Location
+  ///
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void _mapTapped(LatLng location) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Map Tapped'),
+    ));
+    selectedIndex = null;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 }
+
+class ApiResponse {
+  List<Routes> routes;
+  List<Waypoint> waypoints;
+  String code;
+  String uuid;
+
+  ApiResponse({
+    required this.routes,
+    required this.waypoints,
+    required this.code,
+    required this.uuid,
+  });
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    var routeList = json['routes'] as List<dynamic>;
+    var waypointList = json['waypoints'] as List<dynamic>;
+
+    List<Routes> routes =
+        routeList.map((route) => Routes.fromJson(route)).toList();
+    List<Waypoint> waypoints =
+        waypointList.map((waypoint) => Waypoint.fromJson(waypoint)).toList();
+
+    return ApiResponse(
+      routes: routes,
+      waypoints: waypoints,
+      code: json['code'],
+      uuid: json['uuid'],
+    );
+  }
+}
+
 /*
   Future<void> fetchData() async {
     final url = Uri.parse(''
@@ -260,36 +465,3 @@ class _MapaState extends State<Mapa> {
     }
   }
 */
-
-
-
-
-class ApiResponse {
-  List<Routes> routes;
-  List<Waypoint> waypoints;
-  String code;
-  String uuid;
-
-  ApiResponse({
-    required this.routes,
-    required this.waypoints,
-    required this.code,
-    required this.uuid,
-  });
-
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    var routeList = json['routes'] as List<dynamic>;
-    var waypointList = json['waypoints'] as List<dynamic>;
-
-    List<Routes> routes = routeList.map((route) => Routes.fromJson(route)).toList();
-    List<Waypoint> waypoints =
-    waypointList.map((waypoint) => Waypoint.fromJson(waypoint)).toList();
-
-    return ApiResponse(
-      routes: routes,
-      waypoints: waypoints,
-      code: json['code'],
-      uuid: json['uuid'],
-    );
-  }
-}
