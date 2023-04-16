@@ -40,6 +40,8 @@ dependencies:
   flutter_svg: ^2.0.5
   http: ^0.13.5
   sizer: ^2.0.15
+  geolocator: ^9.0.2
+  flutter_map_location_marker: any
 
 dev_dependencies:
   flutter_test:
