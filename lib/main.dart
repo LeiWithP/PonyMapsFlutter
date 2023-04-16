@@ -52,6 +52,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
+  final List<String> _titles = [
+    'MORELIA CAMPUS I',
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -77,14 +81,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: _isSearchBarVisible
-            ? const TextField(
+            ? TextField(
                 //style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Buscar...',
                   //hintStyle: TextStyle(color: Colors.white70),
                 ),
+          onSubmitted: (query) {
+            print(query);
+          },
               )
-            : const Text('PONYMAPS'),
+            : Text(_titles[0]),
         actions: [
           IconButton(
             onPressed: _toggleSearchBarVisibility,

@@ -50,9 +50,10 @@ class _HorariosState extends State<Horarios> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 10),
+
         Container(
           height: 70,
+          margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           decoration: BoxDecoration(
             /*gradient: LinearGradient(
               colors: [
@@ -88,7 +89,7 @@ class _HorariosState extends State<Horarios> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+
         Expanded(
             child: ListView.builder(
             itemCount: items.length,
