@@ -29,7 +29,8 @@ class _ExpandableCardState extends State<UbicacionCard> {
           Radius.circular(10.0),
         ),
       ),
-      color: Theme.of(context).colorScheme.onSecondary,
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
       child: InkWell(
         onTap: () {
           setState(() {
