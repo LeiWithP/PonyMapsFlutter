@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ponymapscross/cards/horarioCard.dart';
 
 import '../cards/ubicacionCard.dart';
 import '../settings/testData.dart';
@@ -49,23 +50,24 @@ class _HorariosState extends State<Horarios> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-            child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return UbicacionCard(
-                title: items[index]['building'] ?? 'Desconocido', // Use the 'name' value as the title
-                subtitle: items[index]['name'] ?? '', // Use the 'description' value as the subtitle
-                areas: items[index]['areas'] ?? '- Direccion\n- Departamento De Vinculacion\n- Oficina De Oficialidad Paqueteria\n- Departamento De Desarrollo Academico\n- Recursos Humanos\n- Servicio Medico\n- Departamento De Servicios Escolares\n- Departamento de Comunicacion y Difusion\n- Recursos Financieros\n- DEP: Division de Estudios Profesionales\n- DEPI: Division de Estudios de Posgrado e Investigacion"',
-                imagePath: 'assets/pony_plaza.jpg',
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
+
         Container(
-          height: 60,
-          color: Theme.of(context).colorScheme.onSecondary,
+          height: 70,
+          margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          decoration: BoxDecoration(
+            /*gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.onSecondary,
+                Theme.of(context).colorScheme.secondary,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: [0.0, 1.0],
+              transform: GradientRotation(0.3 * 3.14),
+            ), */
+            color: Theme.of(context).colorScheme.onSecondary,
+            borderRadius: BorderRadius.circular(15.0),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -87,7 +89,15 @@ class _HorariosState extends State<Horarios> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+
+        Expanded(
+            child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return HorarioCard(title: 'Materia', schedule: '??:?? - ??:??',);
+            },
+          ),
+        ),
       ],
     );
   }
@@ -96,7 +106,7 @@ class _HorariosState extends State<Horarios> {
     return SizedBox(
       width: w,
       child: ListWheelScrollView(
-        itemExtent: 30,
+        itemExtent: 28,
         diameterRatio: 1,
         physics: FixedExtentScrollPhysics(),
         children: items
