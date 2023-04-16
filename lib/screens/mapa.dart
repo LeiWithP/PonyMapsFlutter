@@ -40,9 +40,10 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   int? selectedIndex;
 
   bool arrivedDest = false;
-  bool activeRoute = true;
+  bool activeRoute = false;
   late Timer _timer;
-  int _start = 10;
+
+  late Position currentPos;
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +56,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
               zoom: 17.0,
               maxZoom: 18.0,
               minZoom: 10.0,
-              bounds: AppConstants.boundariesCampus1,
-              maxBounds: AppConstants.boundariesCampus1,
+              /*bounds: AppConstants.boundariesCampus1,
+              maxBounds: AppConstants.boundariesCampus1,*/
               onTap: (tapPosition, location) => _mapTapped(location)),
           /*
           nonRotatedChildren: [
@@ -141,15 +142,11 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
                           //polylinePoints.add(LatLng(19.72299, -101.18582));
                           //polylinePoints.add(LatLng(19.72325, -101.18541));
-                          //await addCoordinates(LatLng(19.722989, -101.185827), LatLng(19.723173, -101.184928));
+                          await getCurrentLocation();
+                          await addCoordinates(LatLng(19.709611, -101.169254), LatLng(19.709773, -101.169428));
                           //print(polylinePoints.join(''));
-                          //addPolyline();
-
-                          var a = await _determinePosition();
-                          String message = 'Lat ' + a.latitude.toString() + " Lng " + a.longitude.toString();
-                          ScaffoldMessenger.of(_).showSnackBar(SnackBar(
-                            content: Text(message),
-                          ));
+                          addPolyline();
+                          startLiveRouting();
 
                           /*showDialog(
                               context: context,
@@ -282,15 +279,19 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     const secs = Duration(milliseconds: 3 * 500);
     _timer = Timer.periodic(
       secs,
-      (Timer timer) {
+      (Timer timer) async {
         if ( activeRoute == false || arrivedDest == true) {
           setState(() {
             timer.cancel();
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Map Tapped'),
-          ));
+
+          getCurrentLocation();
+          newLineCoordinates();
+
+          addPolyline();
+
+
           /*
           setState(() {
 
@@ -298,6 +299,34 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
         }
       },
     );
+  }
+
+  void newLineCoordinates(){
+
+    var actualPos = LatLng(currentPos.latitude, currentPos.longitude);
+
+    polylinePoints.removeAt(0);
+    polylinePoints.insert(0, actualPos);
+
+    var nextPos = polylinePoints[1];
+
+    Distance distance = const Distance();
+
+    double meters = distance.as(LengthUnit.Meter, actualPos, nextPos);
+    double dist = 5.0;
+
+    if (meters <= dist) {
+
+      if( polylinePoints.isNotEmpty ) polylinePoints.removeAt(1);
+
+    }
+
+    if (polylinePoints.length == 1) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Arrived'),
+      ));
+      arrivedDest = true;
+    }
   }
 
   ///
@@ -311,6 +340,9 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     polylinePoints = coordinates
         .map((coordinate) => LatLng(coordinate.last, coordinate.first))
         .toList();
+
+    activeRoute = true;
+    arrivedDest = false;
   }
 
   void addPolyline() {
@@ -361,6 +393,16 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   ///
   /// Location
   ///
+
+  Future<void> getCurrentLocation() async {
+
+    currentPos = await _determinePosition();
+    /*
+    String message = 'Lat ' + currentPos.latitude.toString() + " Lng " + currentPos.longitude.toString();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));*/
+  }
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
