@@ -15,8 +15,8 @@ class Ubicaciones extends StatelessWidget {
           itemCount: items.length,
           itemBuilder: (context, index) {
             return UbicacionCard(
-              title: items[index]['building'] ?? 'Desconocido', // Use the 'name' value as the title
-              subtitle: items[index]['name'] ?? '', // Use the 'description' value as the subtitle
+              title: items[index]['building'] ?? 'Desconocido',
+              subtitle: items[index]['name'] ?? '',
               areas: items[index]['areas'] ?? '- Direccion\n- Departamento De Vinculacion\n- Oficina De Oficialidad Paqueteria\n- Departamento De Desarrollo Academico\n- Recursos Humanos\n- Servicio Medico\n- Departamento De Servicios Escolares\n- Departamento de Comunicacion y Difusion\n- Recursos Financieros\n- DEP: Division de Estudios Profesionales\n- DEPI: Division de Estudios de Posgrado e Investigacion"',
               imagePath: items[index]['photo'] ?? 'assets/pony_plaza.jpg',
             );
