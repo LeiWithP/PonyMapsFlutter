@@ -66,8 +66,16 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/pony_plaza.jpg
     - assets/icons/
+    - assets/pony_plaza.jpg
+    - assets/A.jpeg
+    - assets/B.jpeg
+    - assets/D.jpeg
+    - assets/E.jpeg
+    - assets/F.jpeg
+    - assets/I.jpeg
+    - assets/K.jpeg
+    - assets/CH.jpeg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
