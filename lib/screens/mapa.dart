@@ -1,23 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-
 import 'package:ponymapscross/constants/app_constants.dart';
 import 'package:sizer/sizer.dart';
-
 import '../cards/ubicacionCard.dart';
-import '../components/ubicacionSelector.dart';
+import '../components/ubicacion_selector.dart';
 import '../constants/app_keys.dart';
 import '../models/map_marker_model.dart';
-
 import 'package:http/http.dart' as http;
-
 import '../models/ubicacion_models.dart';
 
 class Mapa extends StatefulWidget {
@@ -45,6 +40,44 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
   late Position currentPos;
 
+  Map<String, MapMarker> places = {};
+
+  late LatLng origin;
+  late LatLng destino;
+
+  String dataOrigin = "";
+  String dataDestino = "";
+
+  /*
+  origin = places[dataOrigin]!.location;
+  destino = places[dataDestino]!.location;*/
+
+  void updateOrigin(String dataOrigin) {
+    this.dataOrigin = dataOrigin;
+    print(this.dataOrigin + "hola");
+  }
+
+  void updateDestino(String dataDestino) {
+    this.dataDestino = dataDestino;
+
+    print(this.dataDestino + "hola");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print(mapMarkers.length);
+
+      for (int i = 0; i < mapMarkers.length; i++) {
+        print(mapMarkers[i].title);
+        print("Bruhhhhhhh");
+        places[mapMarkers[i].title] = mapMarkers[i];
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageStorage(
@@ -58,8 +91,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   zoom: 17.0,
                   maxZoom: 18.0,
                   minZoom: 10.0,
-                  bounds: AppConstants.boundariesCampus1,
-                  maxBounds: AppConstants.boundariesCampus1,
+                  /*bounds: AppConstants.boundariesCampus1,
+                  maxBounds: AppConstants.boundariesCampus1,*/
                   onTap: (tapPosition, location) => _mapTapped(location)),
               /*
           nonRotatedChildren: [
@@ -126,8 +159,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   markers: [
                     for (int i = 0; i < mapMarkers.length; i++)
                       Marker(
-                        height: 30,
-                        width: 30,
+                        height: 40,
+                        width: 40,
                         point: mapMarkers[i].location,
                         builder: (_) {
                           return GestureDetector(
@@ -135,7 +168,9 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                               _animatedMapMove(mapMarkers[i].location, 18);
                               selectedIndex = i;
                             },
-                            onTap: () async {
+                            onTap: () {
+                              _animatedMapMove(mapMarkers[i].location, 18);
+                              selectedIndex = i;
                               //a();
                               /*ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
                             content: Text('Normal Tap'),
@@ -143,33 +178,51 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
                               //polylinePoints.add(LatLng(19.72299, -101.18582));
                               //polylinePoints.add(LatLng(19.72325, -101.18541));
-                              await getCurrentLocation();
-                              await addCoordinates(
-                                  LatLng(19.709611, -101.169254),
-                                  LatLng(19.709773, -101.169428));
-                              //print(polylinePoints.join(''));
-                              addPolyline();
-                              startLiveRouting();
 
-                              /*showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                  title: Text(mapMarkers[i].title),
-                                  content: UbicacionCard(
-                                    title: mapMarkers[i].title,
-                                    // Use the 'name' value as the title
-                                    subtitle: mapMarkers[i].title,
-                                    // Use the 'description' value as the subtitle
-                                    areas: mapMarkers[i].title,
-                                    imagePath: 'assets/pony_plaza.jpg',
-                                  )));*/
+                              //origin = places[dataOrigin]!.location;
+
+                              /*getRoute(LatLng(19.709611, -101.169254),
+                                  LatLng(19.709773, -101.169428));*/
+
+                              showDialog(
+                                  context: context,
+                                  builder: (_) => Dialog(
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(0.0))),
+                                        child: SizedBox(
+                                          height: 50.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Image.asset(
+                                                mapMarkers[i].image!,
+                                                fit: BoxFit.contain,
+                                              ),
+                                              Text(
+                                                "Edificio ${mapMarkers[i].title}",
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              const Text(
+                                                "Descripcion",
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("Cerrar"))
+                                            ],
+                                          ),
+                                        ),
+                                      ));
                             },
                             onLongPress: () {
                               ScaffoldMessenger.of(_)
                                   .showSnackBar(const SnackBar(
                                 content: Text('Long Tap'),
                               ));
-                              startLiveRouting();
                             },
                             child: AnimatedScale(
                                 duration: const Duration(microseconds: 500),
@@ -237,7 +290,27 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
               right: 70,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOutBack,
-              child: UbicacionSelector(),
+              child: UbicacionSelector(
+                updateMapaOrigin: updateOrigin,
+                updateMapaDestino: updateDestino,
+                onCreatePressed: () async {
+
+                  origin = places[dataOrigin]!.location;
+                  destino = places[dataDestino]!.location;
+
+                  print("a");
+                  print(origin);
+                  print(destino);
+
+                  await getRoute(origin, destino);
+                  /*ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Arrived'),
+                  ));*/
+                },
+                onCleanPressed: () {
+                  cleanRoute();
+                },
+              ),
             ),
           ],
         ));
@@ -276,6 +349,22 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     });
 
     controller.forward();
+  }
+
+  void cleanRoute() {
+    polylinePoints = [];
+    addPolyline();
+
+    activeRoute = false;
+    arrivedDest = false;
+  }
+
+  Future<void> getRoute(LatLng origin, LatLng dest) async {
+    //await getCurrentLocation();
+    await addCoordinates(origin, dest);
+    //print(polylinePoints.join(''));
+    addPolyline();
+    //startLiveRouting();
   }
 
   void startLiveRouting() {
@@ -354,8 +443,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
           ),
         ],
       );
-
-      showSelector = false;
     });
   }
 
