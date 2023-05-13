@@ -42,6 +42,7 @@ dependencies:
   sizer: ^2.0.15
   geolocator: ^9.0.2
   flutter_map_location_marker: any
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:
