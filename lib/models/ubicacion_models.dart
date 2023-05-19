@@ -1,9 +1,9 @@
 
 class Routes {
   String weightName;
-  double weight;
-  double duration;
-  double distance;
+  num  weight;
+  num  duration;
+  num  distance;
   List<Leg> legs;
   Geometry geometry;
 
@@ -35,10 +35,10 @@ class Routes {
 class Leg {
   List<dynamic> viaWaypoints;
   List<Admin> admins;
-  double weight;
-  double duration;
+  num  weight;
+  num  duration;
   List<dynamic> steps;
-  double distance;
+  num  distance;
   String summary;
 
   Leg({

@@ -1,24 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-
 import 'package:ponymapscross/constants/app_constants.dart';
 import 'package:sizer/sizer.dart';
-
-import '../cards/ubicacionCard.dart';
-import '../components/ubicacionSelector.dart';
+import '../components/ubicacion_selector.dart';
 import '../constants/app_keys.dart';
 import '../models/map_marker_model.dart';
-
 import 'package:http/http.dart' as http;
-
 import '../models/ubicacion_models.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'package:flutter/services.dart'
+    show rootBundle; // Biblioteca para leer archivos locales
 
 class Mapa extends StatefulWidget {
   const Mapa({Key? key}) : super(key: key);
@@ -45,6 +44,80 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
   late Position currentPos;
 
+  Map<String, MapMarker> places = {};
+
+  late LatLng origin;
+  late LatLng destino;
+
+  String dataOrigin = "";
+  String dataDestino = "";
+
+  List<MapMarker> markers = [];
+
+  /*
+  origin = places[dataOrigin]!.location;
+  destino = places[dataDestino]!.location;*/
+
+  void updateOrigin(String dataOrigin) {
+    this.dataOrigin = dataOrigin;
+    print("${this.dataOrigin}hola");
+  }
+
+  void updateDestino(String dataDestino) {
+    this.dataDestino = dataDestino;
+
+    print(this.dataDestino + "hola");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      markers = await loadMapMarkers();
+
+      for (int i = 0; i < markers.length; i++) {
+        //print(mapMarkers[i].title);
+        //print("Bruhhhhhhh");
+        places[markers[i].title] = markers[i];
+      }
+    });
+  }
+
+  Future<List<MapMarker>> loadMapMarkers() async {
+    String jsonString = await _loadJsonAsset(); // Lee el archivo JSON
+
+    final jsonData = json.decode(jsonString); // Decodifica el JSON
+
+    for (var item in jsonData) {
+      //var lat = double.tryParse(item['Lat']);
+      //var lng = double.tryParse(item['Lng']);
+      print("Bruhhhhhhh");
+
+      MapMarker marker = MapMarker(
+        image: 'assets/pony_plaza.jpg',
+        title: item['Nombre'] as String,
+        description: item['Descripcion'] as String,
+        location: LatLng(item['Lat'], item['Lng']),
+      );
+      /*
+      print(item['Nombre']);
+      print(item['Descripcion']);
+      print(item['Lat']  );
+      print(item['Lng']  );*/
+
+      places[marker.title] = marker;
+
+      markers.add(marker);
+    }
+
+    return markers;
+  }
+
+  Future<String> _loadJsonAsset() async {
+    return await rootBundle.loadString('assets/json/places.json');
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageStorage(
@@ -55,9 +128,10 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
               mapController: mapController,
               options: MapOptions(
                   center: AppConstants.tecCampus1,
-                  zoom: 17.0,
-                  maxZoom: 18.0,
-                  minZoom: 10.0,
+                  zoom: 14.5,
+                  slideOnBoundaries: true,
+                  maxZoom: 18.4,
+                  minZoom: 14.5,
                   bounds: AppConstants.boundariesCampus1,
                   maxBounds: AppConstants.boundariesCampus1,
                   onTap: (tapPosition, location) => _mapTapped(location)),
@@ -79,14 +153,51 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
             ),
           ],*/
               children: [
+                /*
                 TileLayer(
-                  /*urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",*/
-                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    maxNativeZoom: 22,
+                    /*urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                 urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  additionalOptions: const {
+                    'mapStyleId': AppKeys.mapBoxStyleId,
+                    'accessToken': AppKeys.mapBoxAccessToken,
+                  },*/
+                    userAgentPackageName: 'com.example.app',
+                    tileProvider: CustomTileProvider(),
+                    urlTemplate: '',
+
+                    //tileProvider: CachedNetworkTileProvider(),
+                    ),*/
+                TileLayer(
+                  tileProvider: CustomTileProvider(),
+                  urlTemplate:
+                      "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
                   additionalOptions: const {
                     'mapStyleId': AppKeys.mapBoxStyleId,
                     'accessToken': AppKeys.mapBoxAccessToken,
                   },
-                  userAgentPackageName: 'com.example.app',
+                  //urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  tileBuilder: (
+                    context,
+                    Widget tileWidget,
+                    Tile tile,
+                  ) {
+                    final coords = tile.coords;
+                    var urlTemplate =
+                        "https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token=${AppKeys.mapBoxAccessToken}";
+                    //var urlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+                    return CachedNetworkImage(
+                      imageUrl: urlTemplate
+                          .replaceAll('{z}', coords.z.toInt().toString())
+                          .replaceAll('{x}', coords.x.toInt().toString())
+                          .replaceAll('{y}', coords.y.toInt().toString()),
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                    );
+                  },
                 ),
                 /*
             polyLineLayer = PolylineLayer(
@@ -124,18 +235,65 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                 ),
                 MarkerLayer(
                   markers: [
-                    for (int i = 0; i < mapMarkers.length; i++)
+                    for (int i = 0; i < markers.length; i++)
                       Marker(
-                        height: 30,
-                        width: 30,
-                        point: mapMarkers[i].location,
+                        height: 40,
+                        width: 40,
+                        point: markers[i].location,
                         builder: (_) {
                           return GestureDetector(
                             onDoubleTap: () {
-                              _animatedMapMove(mapMarkers[i].location, 18);
                               selectedIndex = i;
+                              _animatedMapMove(markers[i].location, 18.4);
+
+                              showDialog(
+                                  context: context,
+                                  builder: (_) => Dialog(
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(0.0))),
+                                        child: SizedBox(
+                                          height: 50.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Image.asset(
+                                                markers[i].image!,
+                                                fit: BoxFit.contain,
+                                              ),
+                                              Text(
+                                                "Edificio ${markers[i].title}",
+                                                style: const TextStyle(
+                                                    fontSize: 20),
+                                              ),
+                                              Text(
+                                                markers[i].description,
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: const Text("Cerrar"))
+                                            ],
+                                          ),
+                                        ),
+                                      ));
                             },
-                            onTap: () async {
+                            onTap: () {
+                              selectedIndex = i;
+                              _animatedMapMove(markers[i].location, 18.4);
+
+                              Future.delayed(const Duration(seconds: 1), () {
+                                // <-- Delay here
+                                setState(() {
+                                  selectedIndex = i;
+                                });
+                              });
+                              print(selectedIndex);
+                              //_animatedMapMove(markers[i].location, 18.4);
+
                               //a();
                               /*ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
                             content: Text('Normal Tap'),
@@ -143,37 +301,25 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
                               //polylinePoints.add(LatLng(19.72299, -101.18582));
                               //polylinePoints.add(LatLng(19.72325, -101.18541));
-                              await getCurrentLocation();
-                              await addCoordinates(
-                                  LatLng(19.709611, -101.169254),
-                                  LatLng(19.709773, -101.169428));
-                              //print(polylinePoints.join(''));
-                              addPolyline();
-                              startLiveRouting();
 
-                              /*showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                  title: Text(mapMarkers[i].title),
-                                  content: UbicacionCard(
-                                    title: mapMarkers[i].title,
-                                    // Use the 'name' value as the title
-                                    subtitle: mapMarkers[i].title,
-                                    // Use the 'description' value as the subtitle
-                                    areas: mapMarkers[i].title,
-                                    imagePath: 'assets/pony_plaza.jpg',
-                                  )));*/
+                              //origin = places[dataOrigin]!.location;
+
+                              /*getRoute(LatLng(19.709611, -101.169254),
+                                  LatLng(19.709773, -101.169428));*/
                             },
                             onLongPress: () {
                               ScaffoldMessenger.of(_)
                                   .showSnackBar(const SnackBar(
                                 content: Text('Long Tap'),
                               ));
-                              startLiveRouting();
                             },
                             child: AnimatedScale(
                                 duration: const Duration(microseconds: 500),
-                                scale: selectedIndex == i ? 1 : 0.7,
+                                scale: (selectedIndex == null)
+                                    ? 0.7
+                                    : (selectedIndex == i)
+                                        ? 1
+                                        : 0.0,
                                 child: AnimatedOpacity(
                                   duration: const Duration(milliseconds: 500),
                                   opacity: (selectedIndex == null)
@@ -217,15 +363,15 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
               ],
             ),
             Positioned(
-              bottom: 10.0,
-              right: 10.0,
+              bottom: 2.5.h,
+              right: 2.5.w,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 0, right: 0),
                 child: FloatingActionButton(
                   onPressed: () {
                     setState(() {
                       showSelector = !showSelector;
-                      containerHeight = showSelector ? 200.0 : 0.0;
+                      containerHeight = showSelector ? 15.0.h : 0.0.h;
                     });
                   },
                   child: const Icon(Icons.directions),
@@ -234,14 +380,41 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
             ),
             AnimatedPositioned(
               bottom: showSelector ? 10 : -200,
-              right: 70,
+              right: 19.0.w,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOutBack,
-              child: UbicacionSelector(),
+              child: UbicacionSelector(
+                updateMapaOrigin: updateOrigin,
+                updateMapaDestino: updateDestino,
+                onCreatePressed: () async {
+                  origin = places[dataOrigin]!.location;
+                  destino = places[dataDestino]!.location;
+
+                  print("a");
+                  print(origin);
+                  print(destino);
+
+                  await getRoute(origin, destino);
+                  /*ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Arrived'),
+                  ));*/
+                },
+                onCleanPressed: () {
+                  cleanRoute();
+                },
+              ),
             ),
           ],
         ));
   }
+
+  ///
+  /// Routing
+  ///
+
+  ///
+  /// Miscelaneous
+  ///
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
@@ -276,6 +449,22 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     });
 
     controller.forward();
+  }
+
+  void cleanRoute() {
+    polylinePoints = [];
+    addPolyline();
+
+    activeRoute = false;
+    arrivedDest = false;
+  }
+
+  Future<void> getRoute(LatLng origin, LatLng dest) async {
+    //await getCurrentLocation();
+    await addCoordinates(origin, dest);
+    //print(polylinePoints.join(''));
+    addPolyline();
+    //startLiveRouting();
   }
 
   void startLiveRouting() {
@@ -354,8 +543,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
           ),
         ],
       );
-
-      showSelector = false;
     });
   }
 
@@ -451,6 +638,47 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     super.dispose();
   }
 }
+
+class CustomTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayer options) {
+    final url =
+        'https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/${coords.z.toInt()}/${coords.x.toInt()}/${coords.y.toInt()}@2x?access_token=${AppKeys.mapBoxAccessToken}';
+    //'https://tile.openstreetmap.org/${coords.z.toInt()}/${coords.x.toInt()}/${coords.y.toInt()}.png';
+    return CachedNetworkImageProvider(url,
+        cacheManager: CacheManager(
+          Config(
+            'cacheKey',
+            stalePeriod: const Duration(days: 30),
+          ),
+        ));
+  }
+}
+
+/*
+class CachedNetworkTileProvider extends TileProvider {
+
+  @override
+  ImageProvider<Object> getImage(Coords<num> coords, TileLayer options) {
+
+    //urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+    final url =
+        'https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/${coords.z}/${coords.x}/${coords.y}@2x?access_token=${AppKeys.mapBoxAccessToken}';
+
+
+    return CachedNetworkImageProvider(url);
+  }
+
+
+
+  ImageProvider<Object> getImage(int x, int y, int z) {
+  ImageProvider<Object> getImage(int x, int y, int z) {
+    final url =
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/$z/$x/$y?access_token=your_mapbox_access_token';
+
+    return CachedNetworkImageProvider(url);
+  }
+}*/
 
 class ApiResponse {
   List<Routes> routes;
