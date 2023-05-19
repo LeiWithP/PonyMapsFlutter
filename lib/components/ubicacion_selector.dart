@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ponymapscross/components/dropdownUbication.dart';
+import 'package:sizer/sizer.dart';
 
 class UbicacionSelector extends StatelessWidget {
   final VoidCallback onCreatePressed;
@@ -33,8 +34,8 @@ class UbicacionSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 300,
-      height: 120,
+      width: 81.0.w,
+      height: 16.0.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).colorScheme.onSecondary,
