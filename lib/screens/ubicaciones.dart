@@ -36,6 +36,11 @@ class _UbicacionesState extends State<Ubicaciones> {
                 !areas.toLowerCase().contains(searchQuery.toLowerCase())) {
               return Container(); // Return an empty container if the item doesn't match the search query
             }
+            if (searchQuery.isNotEmpty &&
+                searchQuery.length < 3 &&
+                !(title.toLowerCase() == (searchQuery.toLowerCase()))) {
+              return Container(); // Return an empty container if the item doesn't match the search query
+            }
 
             return UbicacionCard(
               title: title,

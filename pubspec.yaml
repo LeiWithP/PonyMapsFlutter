@@ -43,6 +43,8 @@ dependencies:
   geolocator: ^9.0.2
   flutter_map_location_marker: any
   provider: ^6.0.5
+  characters: ^1.2.1
+  diacritic: ^0.1.3
 
 dev_dependencies:
   flutter_test:
@@ -75,10 +77,19 @@ flutter:
     - assets/D.jpeg
     - assets/E.jpeg
     - assets/F.jpeg
+    - assets/G.jpeg
     - assets/I.jpeg
     - assets/J.jpeg
     - assets/K.jpeg
+    - assets/Y.jpeg
+    - assets/Z.jpeg
+    - assets/AA.jpeg
+    - assets/AB.jpeg
+    - assets/AE.jpeg
+    - assets/AF.jpeg
+    - assets/AG.jpeg
     - assets/CH.jpeg
+    - assets/S3.jpeg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

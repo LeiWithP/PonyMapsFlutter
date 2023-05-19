@@ -99,10 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             : Text(_titles[0]),
         actions: [
-          IconButton(
+          _selectedIndex != 0 ? IconButton(
             onPressed: _toggleSearchBarVisibility,
             icon: _isSearchBarVisible ? const Icon(Icons.close) : const Icon(Icons.search),
-          ),
+          ) : Container(),
         ],
       ),
       body: AnimatedSwitcher(
