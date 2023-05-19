@@ -77,10 +77,19 @@ flutter:
     - assets/D.jpeg
     - assets/E.jpeg
     - assets/F.jpeg
+    - assets/G.jpeg
     - assets/I.jpeg
     - assets/J.jpeg
     - assets/K.jpeg
+    - assets/Y.jpeg
+    - assets/Z.jpeg
+    - assets/AA.jpeg
+    - assets/AB.jpeg
+    - assets/AE.jpeg
+    - assets/AF.jpeg
+    - assets/AG.jpeg
     - assets/CH.jpeg
+    - assets/S3.jpeg
     - assets/json/
 
   # To add assets to your application, add an assets section, like this:
