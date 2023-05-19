@@ -4,7 +4,13 @@ import 'package:ponymapscross/settings/testData.dart';
 List<String> list = buildings.map((e) => e["building"]!).toList();
 
 class DropdownUbication extends StatefulWidget {
-  const DropdownUbication({super.key});
+
+   Function(String) updateData;
+
+    DropdownUbication({
+    super.key,
+    required this.updateData
+  });
 
   @override
   State<DropdownUbication> createState() => _DropdownUbicationState();
@@ -12,6 +18,7 @@ class DropdownUbication extends StatefulWidget {
 
 class _DropdownUbicationState extends State<DropdownUbication> {
   String dropdownValue = list.first;
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +41,7 @@ class _DropdownUbicationState extends State<DropdownUbication> {
         setState(() {
           dropdownValue = value!;
         });
+        widget.updateData(dropdownValue);
       },
       items: list.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
