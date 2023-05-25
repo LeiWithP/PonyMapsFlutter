@@ -36,6 +36,10 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   );
   List<LatLng> polylinePoints = [];
 
+  MarkerLayer markerLayer = MarkerLayer(
+    markers: [],
+  );
+
   int? selectedIndex;
 
   bool arrivedDest = false;
@@ -49,8 +53,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   late LatLng origin;
   late LatLng destino;
 
-  String dataOrigin = "";
-  String dataDestino = "";
+  String dataOrigin = "A";
+  String dataDestino = "A";
 
   List<MapMarker> markers = [];
 
@@ -81,7 +85,11 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
         //print("Bruhhhhhhh");
         places[markers[i].title] = markers[i];
       }
+
+
     });
+
+
   }
 
   Future<List<MapMarker>> loadMapMarkers() async {
@@ -134,7 +142,15 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   minZoom: 14.5,
                   bounds: AppConstants.boundariesCampus1,
                   maxBounds: AppConstants.boundariesCampus1,
-                  onTap: (tapPosition, location) => _mapTapped(location)),
+                  onTap: (tapPosition, location) => _mapTapped(location),
+                  onMapReady: () {
+                    setState(() {
+
+                    });
+                    _animatedMapMove(AppConstants.tecCampus1, 14.5);
+                  },
+                    ),
+
               /*
           nonRotatedChildren: [
             // This does NOT fulfill Mapbox's requirements for attribution
@@ -153,8 +169,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
             ),
           ],*/
               children: [
-                /*
-                TileLayer(
+
+               /* TileLayer(
                     maxNativeZoom: 22,
                     /*urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -175,7 +191,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   additionalOptions: const {
                     'mapStyleId': AppKeys.mapBoxStyleId,
                     'accessToken': AppKeys.mapBoxAccessToken,
-                  },
+                  }
+                  ,
                   //urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   tileBuilder: (
                     context,
@@ -199,46 +216,20 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                     );
                   },
                 ),
-                /*
-            polyLineLayer = PolylineLayer(
-              polylineCulling: false,
-              saveLayers: true,
-              polylines: [
-                Polyline(
-                  points: [
-
-                    LatLng(19.72299, -101.18582),
-                    LatLng(19.72325, -101.18541),
-                    LatLng(19.72344, -101.18505),
-
-
-                  ],
-                  color: Colors.blue,
-                  strokeWidth: 5.0,
-                )
-              ],
-            ),*/
                 polylineLayer,
                 CurrentLocationLayer(
                   followOnLocationUpdate: FollowOnLocationUpdate.once,
                   turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
-                  /*style: const LocationMarkerStyle(
-                marker: DefaultLocationMarker
-                  child: Icon(
-                    Icons.navigation,
-                    color: Colors.white,
-                  ),
                 ),
-                markerSize: Size(40, 40),
-                markerDirection: MarkerDirection.heading,
-              ),*/
-                ),
+
+                markerLayer
+                ,
                 MarkerLayer(
                   markers: [
                     for (int i = 0; i < markers.length; i++)
                       Marker(
-                        height: 40,
-                        width: 40,
+                        height: 25,
+                        width: 25,
                         point: markers[i].location,
                         builder: (_) {
                           return GestureDetector(
@@ -285,27 +276,12 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                               selectedIndex = i;
                               _animatedMapMove(markers[i].location, 18.4);
 
-                              Future.delayed(const Duration(seconds: 1), () {
+                             /* Future.delayed(const Duration(seconds: 1), () {
                                 // <-- Delay here
                                 setState(() {
                                   selectedIndex = i;
                                 });
-                              });
-                              print(selectedIndex);
-                              //_animatedMapMove(markers[i].location, 18.4);
-
-                              //a();
-                              /*ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
-                            content: Text('Normal Tap'),
-                          ));*/
-
-                              //polylinePoints.add(LatLng(19.72299, -101.18582));
-                              //polylinePoints.add(LatLng(19.72325, -101.18541));
-
-                              //origin = places[dataOrigin]!.location;
-
-                              /*getRoute(LatLng(19.709611, -101.169254),
-                                  LatLng(19.709773, -101.169428));*/
+                              });*/
                             },
                             onLongPress: () {
                               ScaffoldMessenger.of(_)
@@ -313,13 +289,14 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                 content: Text('Long Tap'),
                               ));
                             },
+                            /*
                             child: AnimatedScale(
                                 duration: const Duration(microseconds: 500),
                                 scale: (selectedIndex == null)
                                     ? 0.7
                                     : (selectedIndex == i)
                                         ? 1
-                                        : 0.0,
+                                        : 0.7,
                                 child: AnimatedOpacity(
                                   duration: const Duration(milliseconds: 500),
                                   opacity: (selectedIndex == null)
@@ -330,36 +307,27 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                   child: SvgPicture.asset(
                                     'assets/icons/map_marker.svg',
                                   ),
-                                )),
-                            /*child: SvgPicture.asset(
+                                )),*/
+                            child: SvgPicture.asset(
                           'assets/icons/map_marker.svg',
-                        ),*/
+                            ),
                           );
                         },
                       ),
                   ],
                 ),
+                /*
                 MarkerLayer(
                   markers: [
                     Marker(
-                      height: 30,
-                      width: 30,
-                      point: AppConstants.tecCampus1,
-                      builder: (_) {
-                        return GestureDetector(
-                          onLongPress: () {
-                            ScaffoldMessenger.of(_).showSnackBar(const SnackBar(
-                              content: Text('Long Tap'),
-                            ));
-                          },
-                          child: SvgPicture.asset(
-                            'assets/icons/map_marker.svg',
-                          ),
-                        );
-                      },
+                      point: LatLng(19.72176, -101.18544),
+                      width: 80,
+                      height: 80,
+                      builder: (context) => FlutterLogo()
                     ),
                   ],
-                ),
+                ),*/
+
               ],
             ),
             Positioned(
@@ -371,7 +339,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   onPressed: () {
                     setState(() {
                       showSelector = !showSelector;
-                      containerHeight = showSelector ? 15.0.h : 0.0.h;
+                      containerHeight = showSelector ? 20.0.h : 0.0.h;
                     });
                   },
                   child: const Icon(Icons.directions),
@@ -626,9 +594,9 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   }
 
   void _mapTapped(LatLng location) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Map Tapped'),
-    ));
+    ));*/
     selectedIndex = null;
   }
 
@@ -654,31 +622,6 @@ class CustomTileProvider extends TileProvider {
         ));
   }
 }
-
-/*
-class CachedNetworkTileProvider extends TileProvider {
-
-  @override
-  ImageProvider<Object> getImage(Coords<num> coords, TileLayer options) {
-
-    //urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-    final url =
-        'https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/${coords.z}/${coords.x}/${coords.y}@2x?access_token=${AppKeys.mapBoxAccessToken}';
-
-
-    return CachedNetworkImageProvider(url);
-  }
-
-
-
-  ImageProvider<Object> getImage(int x, int y, int z) {
-  ImageProvider<Object> getImage(int x, int y, int z) {
-    final url =
-        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/$z/$x/$y?access_token=your_mapbox_access_token';
-
-    return CachedNetworkImageProvider(url);
-  }
-}*/
 
 class ApiResponse {
   List<Routes> routes;
@@ -710,25 +653,3 @@ class ApiResponse {
     );
   }
 }
-
-/*
-  Future<void> fetchData() async {
-    final url = Uri.parse(''
-       // 'https://dummyjson.com/products/1'
-        'https://api.mapbox.com/directions/v5/mapbox/walking/-101.185404%2C19.723222%3B-101.185026%2C19.723415?alternatives=false&continue_straight=true&geometries=geojson&overview=simplified&steps=false&access_token=pk.eyJ1IjoiYW5nZWxzMDEwNyIsImEiOiJjbGJ2anRvdXAwdTMwM3ZxbzFkeWJndThqIn0.Ep3N8cDHH3Iwr9YLDgQn8g'
-    );
-
-
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      // The request was successful, parse the JSON response
-      final jsonString = response.body;
-      print(jsonString);
-      // Do something with the JSON data
-    } else {
-      // The request failed with an error code, handle the error
-      print('Request failed with status: ${response.statusCode}.');
-    }
-  }
-*/

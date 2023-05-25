@@ -94,5 +94,13 @@ const List<Map<String, String>> schoolEvents = [
     'Our talented musicians will perform a variety of genres in this annual music festival. Come enjoy an evening of entertainment!',
     'imageUrl': 'assets/images/music_festival.jpg',
   },
+  {
+    'title': 'Mimixekua',
+    'date': 'Mayo 23, 2023',
+    'location': 'Auditorio Heber Soto',
+    'description':
+    'Our talented musicians will perform a variety of genres in this annual music festival. Come enjoy an evening of entertainment!',
+    'imageUrl': 'assets/images/music_festival.jpg',
+  },
 ];
 
