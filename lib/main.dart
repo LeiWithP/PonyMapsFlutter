@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ponymapscross/providers/SearchQueryProvider.dart';
 import 'package:ponymapscross/screens/eventos.dart';
 import 'package:ponymapscross/screens/horarios.dart';
 import 'package:ponymapscross/screens/mapa.dart';
 import 'package:ponymapscross/settings/testData.dart';
+import 'package:provider/provider.dart';
 import 'settings/colors.dart';
 import 'screens/ubicaciones.dart';
 import 'package:sizer/sizer.dart';
@@ -20,11 +22,14 @@ class MyApp extends StatelessWidget {
 
     return Sizer(
         builder: (context, orientation, deviceType) {
-          return MaterialApp(
-            title: 'Flutter Demo',
-            theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-            darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-            home: const MyHomePage(title: 'PONYMAPS'),
+          return ChangeNotifierProvider(
+            create: (_) => SearchQueryProvider(),
+            child: MaterialApp(
+              title: 'Flutter Demo',
+              theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+              darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+              home: const MyHomePage(title: 'PONYMAPS'),
+            ),
           );
         },
     );
@@ -67,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _toggleSearchBarVisibility() {
     setState(() {
       _isSearchBarVisible = !_isSearchBarVisible;
+      Provider.of<SearchQueryProvider>(context, listen: false).setSearchQuery('');
     });
   }
 
@@ -83,20 +89,20 @@ class _MyHomePageState extends State<MyHomePage> {
         title: _isSearchBarVisible
             ? TextField(
                 //style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Buscar...',
                   //hintStyle: TextStyle(color: Colors.white70),
                 ),
           onSubmitted: (query) {
-            print(query);
+            Provider.of<SearchQueryProvider>(context, listen: false).setSearchQuery(query);
           },
               )
             : Text(_titles[0]),
         actions: [
-          IconButton(
+          _selectedIndex != 0 ? IconButton(
             onPressed: _toggleSearchBarVisibility,
             icon: _isSearchBarVisible ? const Icon(Icons.close) : const Icon(Icons.search),
-          ),
+          ) : Container(),
         ],
       ),
       body: AnimatedSwitcher(
