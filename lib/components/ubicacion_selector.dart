@@ -34,7 +34,7 @@ class UbicacionSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 81.0.w,
+      width: 82.0.w,
       height: 16.0.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
