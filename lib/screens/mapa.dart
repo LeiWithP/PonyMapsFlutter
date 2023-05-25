@@ -316,6 +316,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                       ),
                   ],
                 ),
+                /*
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -325,7 +326,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                       builder: (context) => FlutterLogo()
                     ),
                   ],
-                ),
+                ),*/
 
               ],
             ),
