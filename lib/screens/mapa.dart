@@ -103,7 +103,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
       print("Bruhhhhhhh");
 
       MapMarker marker = MapMarker(
-        image: 'assets/pony_plaza.jpg',
+        image: item['Image'] as String,
         title: item['Nombre'] as String,
         description: item['Descripcion'] as String,
         location: LatLng(item['Lat'], item['Lng']),
@@ -495,6 +495,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     polylinePoints = coordinates
         .map((coordinate) => LatLng(coordinate.last, coordinate.first))
         .toList();
+
+    _animatedMapMove(origen, 18.4);
 
     activeRoute = true;
     arrivedDest = false;
