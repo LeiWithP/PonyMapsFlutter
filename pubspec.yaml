@@ -88,10 +88,12 @@ flutter:
     - assets/N.jpeg
     - assets/N_.jpeg
     - assets/P.jpeg
+    - assets/Q.jpeg
     - assets/R.jpeg
     - assets/S.jpeg
     - assets/T.jpeg
     - assets/U.jpeg
+    - assets/W.jpeg
     - assets/V.jpeg
     - assets/X.jpeg
     - assets/Y.jpeg
@@ -99,6 +101,7 @@ flutter:
     - assets/AA.jpeg
     - assets/AB.jpeg
     - assets/AC.jpeg
+    - assets/AD.jpeg
     - assets/AE.jpeg
     - assets/AF.jpeg
     - assets/AG.jpeg
