@@ -336,13 +336,14 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 0, right: 0),
                 child: FloatingActionButton(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   onPressed: () {
                     setState(() {
                       showSelector = !showSelector;
                       containerHeight = showSelector ? 20.0.h : 0.0.h;
                     });
                   },
-                  child: const Icon(Icons.directions),
+                  child: const Icon(Icons.directions, color: Colors.black),
                 ),
               ),
             ),

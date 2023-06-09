@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           return ChangeNotifierProvider(
             create: (_) => SearchQueryProvider(),
             child: MaterialApp(
-              title: 'Flutter Demo',
+              title: 'PonyMaps',
               theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
               darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
               home: const MyHomePage(title: 'PONYMAPS'),
@@ -60,6 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<String> _titles = [
     'MORELIA CAMPUS I',
   ];
+
+  void _openAndFindLocation() {
+    _onItemTapped(0);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -113,20 +117,20 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             PageStorage(
                 bucket: PageStorageBucket(),
-                child: const Mapa(),
+                child: Mapa(),
             ),
             PageStorage(
               bucket: PageStorageBucket(),
-              child: const Ubicaciones(items: buildings),
+              child: Ubicaciones(items: buildings, onOpenLocation: _openAndFindLocation),
             ),
             PageStorage(
               bucket: PageStorageBucket(),
               child: const Eventos(items: schoolEvents),
-            ),
+            )/*,
             PageStorage(
               bucket: PageStorageBucket(),
               child: const Horarios(),
-            )
+            )*/
           ],
         ),
       ),
@@ -144,10 +148,10 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.event),
             label: 'Eventos',
           ),
-          BottomNavigationBarItem(
+          /*BottomNavigationBarItem(
             icon: Icon(Icons.schedule),
             label: 'Horarios',
-          ),
+          ),*/
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Theme.of(context).colorScheme.primary,

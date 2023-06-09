@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ponymapscross/cards/ubicacionCard.dart';
 import 'package:provider/provider.dart';
+import 'package:ponymapscross/screens/mapa.dart';
+
 
 import '../providers/SearchQueryProvider.dart';
 
-
 class Ubicaciones extends StatefulWidget {
   final List<Map<String, String>> items;
+  final void Function() onOpenLocation;
 
-  const Ubicaciones({Key? key, required this.items}) : super(key: key);
+  const Ubicaciones({Key? key, required this.items, required this.onOpenLocation,}) : super(key: key);
 
   @override
   _UbicacionesState createState() => _UbicacionesState();
@@ -29,11 +31,14 @@ class _UbicacionesState extends State<Ubicaciones> {
             final subtitle = item['name'] ?? '';
             final areas = item['areas'] ?? '';
             final imagePath = item['photo'] ?? 'assets/pony_plaza.jpg';
+            final searchPool = item['related'] ?? '';
+            final onOpenLocation = widget.onOpenLocation;
 
             if (searchQuery.isNotEmpty &&
                 !title.toLowerCase().contains(searchQuery.toLowerCase()) &&
                 !subtitle.toLowerCase().contains(searchQuery.toLowerCase()) &&
-                !areas.toLowerCase().contains(searchQuery.toLowerCase())) {
+                !areas.toLowerCase().contains(searchQuery.toLowerCase()) &&
+                !searchPool.toLowerCase().contains(searchQuery.toLowerCase())) {
               return Container(); // Return an empty container if the item doesn't match the search query
             }
             if (searchQuery.isNotEmpty &&
@@ -47,6 +52,7 @@ class _UbicacionesState extends State<Ubicaciones> {
               subtitle: subtitle,
               areas: areas,
               imagePath: imagePath,
+              onOpenLocation: onOpenLocation,
             );
           },
         ),

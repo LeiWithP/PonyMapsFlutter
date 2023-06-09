@@ -87,14 +87,15 @@ flutter:
     - assets/M.jpeg
     - assets/N.jpeg
     - assets/N_.jpeg
+    - assets/O.jpeg
     - assets/P.jpeg
     - assets/Q.jpeg
     - assets/R.jpeg
     - assets/S.jpeg
     - assets/T.jpeg
     - assets/U.jpeg
-    - assets/W.jpeg
     - assets/V.jpeg
+    - assets/W.jpeg
     - assets/X.jpeg
     - assets/Y.jpeg
     - assets/Z.jpeg
@@ -119,6 +120,8 @@ flutter:
     - assets/2G.jpeg
     - assets/2H.jpeg
     - assets/2J.jpeg
+    - assets/3A.jpeg
+    - assets/3B.jpeg
     - assets/json/
 
   # To add assets to your application, add an assets section, like this:

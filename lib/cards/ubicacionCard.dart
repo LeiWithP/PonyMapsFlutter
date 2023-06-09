@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:ponymapscross/main.dart';
 
 class UbicacionCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final String areas;
   final String imagePath;
+  final void Function() onOpenLocation;
 
   const UbicacionCard({
     Key? key,
@@ -12,6 +14,7 @@ class UbicacionCard extends StatefulWidget {
     required this.subtitle,
     required this.areas,
     required this.imagePath,
+    required this.onOpenLocation,
   }) : super(key: key);
 
   @override
@@ -36,6 +39,13 @@ class _ExpandableCardState extends State<UbicacionCard> {
           setState(() {
             isExpanded = !isExpanded;
           });
+        },
+        onLongPress: () {
+          widget.onOpenLocation();
+          /*Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Mapa()),
+          );*/
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
