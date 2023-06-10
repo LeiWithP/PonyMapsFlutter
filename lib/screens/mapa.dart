@@ -248,31 +248,46 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                   builder: (_) => Dialog(
                                         shape: const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
-                                                Radius.circular(0.0))),
+                                                Radius.circular(20.0))),
                                         child: SizedBox(
                                           height: 50.h,
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Image.asset(
+                                              ClipRRect(
+                                                borderRadius: const BorderRadius.only(
+                                                  topLeft: Radius.circular(20.0),
+                                                  topRight: Radius.circular(20.0),
+                                                ),
+                                                child:
+                                                Image.asset(
                                                 markers[i].image!,
                                                 fit: BoxFit.contain,
+                                                ),
                                               ),
                                               Text(
-                                                "Edificio ${markers[i].title}",
+                                                "${markers[i].title}",
                                                 style: const TextStyle(
-                                                    fontSize: 20),
+                                                    fontSize: 40),
                                               ),
-                                              Text(
-                                                markers[i].description,
-                                                style: TextStyle(fontSize: 10),
+                                              Container(
+                                                width: 200, // Set the desired width of the container
+                                                child: Text(
+                                                  markers[i].description,
+                                                  style: TextStyle(fontSize: 20),
+                                                  overflow: TextOverflow.ellipsis, // Specify the overflow behavior
+                                                  maxLines: 2, // Define the maximum number of lines to display
+                                                ),
                                               ),
-                                              ElevatedButton(
+                                              Container(
+                                                height: 20.0,
+                                              ),
+                                              /*ElevatedButton(
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
-                                                  child: const Text("Cerrar"))
+                                                  child: const Text("Cerrar"))*/
                                             ],
                                           ),
                                         ),
