@@ -8,7 +8,7 @@ import '../providers/SearchQueryProvider.dart';
 
 class Ubicaciones extends StatefulWidget {
   final List<Map<String, String>> items;
-  final void Function() onOpenLocation;
+  final void Function(int, String) onOpenLocation;
 
   const Ubicaciones({Key? key, required this.items, required this.onOpenLocation,}) : super(key: key);
 
