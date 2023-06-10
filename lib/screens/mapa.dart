@@ -20,10 +20,14 @@ import 'package:flutter/services.dart'
     show rootBundle; // Biblioteca para leer archivos locales
 
 class Mapa extends StatefulWidget {
-  const Mapa({Key? key}) : super(key: key);
+  //final Function onPlaceReceived;
+  final ValueNotifier<String> location;
+
+  const Mapa({Key? key, required this.location}) : super(key: key);
 
   @override
   _MapaState createState() => _MapaState();
+
 }
 
 class _MapaState extends State<Mapa> with TickerProviderStateMixin {
@@ -62,6 +66,8 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
   origin = places[dataOrigin]!.location;
   destino = places[dataDestino]!.location;*/
 
+  late ValueNotifier<String> location;
+
   void updateOrigin(String dataOrigin) {
     this.dataOrigin = dataOrigin;
     print("${this.dataOrigin}hola");
@@ -85,12 +91,18 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
         //print("Bruhhhhhhh");
         places[markers[i].title] = markers[i];
       }
-
-
     });
 
+    location = widget.location;
 
+    location.addListener(() {
+      // Call your function here
+      var dest = places[location.value]!.location;
+      _animatedMapMove(dest, 18.4);
+      location.value = '';
+    });
   }
+
 
   Future<List<MapMarker>> loadMapMarkers() async {
     String jsonString = await _loadJsonAsset(); // Lee el archivo JSON
@@ -135,21 +147,19 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
             FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                  center: AppConstants.tecCampus1,
-                  zoom: 14.5,
-                  slideOnBoundaries: true,
-                  maxZoom: 18.4,
-                  minZoom: 14.5,
-                  bounds: AppConstants.boundariesCampus1,
-                  maxBounds: AppConstants.boundariesCampus1,
-                  onTap: (tapPosition, location) => _mapTapped(location),
-                  onMapReady: () {
-                    setState(() {
-
-                    });
-                    _animatedMapMove(AppConstants.tecCampus1, 14.5);
-                  },
-                    ),
+                center: AppConstants.tecCampus1,
+                zoom: 14.5,
+                slideOnBoundaries: true,
+                maxZoom: 18.4,
+                minZoom: 14.5,
+                bounds: AppConstants.boundariesCampus1,
+                maxBounds: AppConstants.boundariesCampus1,
+                onTap: (tapPosition, location) => _mapTapped(location),
+                onMapReady: () {
+                  setState(() {});
+                  _animatedMapMove(AppConstants.tecCampus1, 14.5);
+                },
+              ),
 
               /*
           nonRotatedChildren: [
@@ -169,8 +179,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
             ),
           ],*/
               children: [
-
-               /* TileLayer(
+                /* TileLayer(
                     maxNativeZoom: 22,
                     /*urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -191,8 +200,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   additionalOptions: const {
                     'mapStyleId': AppKeys.mapBoxStyleId,
                     'accessToken': AppKeys.mapBoxAccessToken,
-                  }
-                  ,
+                  },
                   //urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   tileBuilder: (
                     context,
@@ -221,9 +229,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   followOnLocationUpdate: FollowOnLocationUpdate.once,
                   turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
                 ),
-
-                markerLayer
-                ,
+                markerLayer,
                 MarkerLayer(
                   markers: [
                     for (int i = 0; i < markers.length; i++)
@@ -276,7 +282,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                               selectedIndex = i;
                               _animatedMapMove(markers[i].location, 18.4);
 
-                             /* Future.delayed(const Duration(seconds: 1), () {
+                              /* Future.delayed(const Duration(seconds: 1), () {
                                 // <-- Delay here
                                 setState(() {
                                   selectedIndex = i;
@@ -309,7 +315,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                   ),
                                 )),*/
                             child: SvgPicture.asset(
-                          'assets/icons/map_marker.svg',
+                              'assets/icons/map_marker.svg',
                             ),
                           );
                         },
@@ -327,7 +333,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                     ),
                   ],
                 ),*/
-
               ],
             ),
             Positioned(

@@ -6,7 +6,7 @@ class UbicacionCard extends StatefulWidget {
   final String subtitle;
   final String areas;
   final String imagePath;
-  final void Function() onOpenLocation;
+  final void Function(int, String) onOpenLocation;
 
   const UbicacionCard({
     Key? key,
@@ -41,7 +41,7 @@ class _ExpandableCardState extends State<UbicacionCard> {
           });
         },
         onLongPress: () {
-          widget.onOpenLocation();
+          widget.onOpenLocation(0, widget.title);
           /*Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Mapa()),

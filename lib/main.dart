@@ -57,12 +57,27 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
+  ValueNotifier<String> place = ValueNotifier<String>('');
+
   final List<String> _titles = [
-    'MORELIA CAMPUS I',
+    'Campus I',
+    'Campus II'
   ];
 
-  void _openAndFindLocation() {
-    _onItemTapped(0);
+  late String appTitle;
+
+  @override
+  void initState() {
+    super.initState();
+
+    appTitle = _titles[0];
+  }
+
+  void _openAndFindLocation(int index, String location) {
+    setState(() {
+      place.value = location;
+    });
+    _onItemTapped(index);
   }
 
   void _onItemTapped(int index) {
@@ -90,6 +105,30 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.home_work_outlined),
+          onPressed: (){
+
+          if(appTitle == _titles[0]){
+            print("fuuuu");
+            print(appTitle);
+            setState(() {
+              appTitle = _titles[1];
+            });
+
+          }
+          else{
+            print("2222222");
+            print(appTitle);
+            print(_titles[0]);
+            print(_titles[1]);
+            setState(() {
+              appTitle = _titles[0];
+            });
+          }
+        },
+        ),
+        centerTitle: true,
         title: _isSearchBarVisible
             ? TextField(
                 //style: TextStyle(color: Colors.white),
@@ -101,13 +140,14 @@ class _MyHomePageState extends State<MyHomePage> {
             Provider.of<SearchQueryProvider>(context, listen: false).setSearchQuery(query);
           },
               )
-            : Text(_titles[0]),
+            : Text(appTitle),
         actions: [
           _selectedIndex != 0 ? IconButton(
             onPressed: _toggleSearchBarVisibility,
             icon: _isSearchBarVisible ? const Icon(Icons.close) : const Icon(Icons.search),
           ) : Container(),
         ],
+
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
@@ -117,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             PageStorage(
                 bucket: PageStorageBucket(),
-                child: Mapa(),
+                child: Mapa(location: place),
             ),
             PageStorage(
               bucket: PageStorageBucket(),
