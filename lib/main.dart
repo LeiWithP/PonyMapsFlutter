@@ -65,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   late String appTitle;
+  bool _isSearchBarVisible = false;
 
   @override
   void initState() {
@@ -86,7 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  bool _isSearchBarVisible = false;
 
   void _toggleSearchBarVisibility() {
     setState(() {
@@ -110,18 +110,12 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: (){
 
           if(appTitle == _titles[0]){
-            print("fuuuu");
-            print(appTitle);
             setState(() {
               appTitle = _titles[1];
             });
 
           }
           else{
-            print("2222222");
-            print(appTitle);
-            print(_titles[0]);
-            print(_titles[1]);
             setState(() {
               appTitle = _titles[0];
             });
