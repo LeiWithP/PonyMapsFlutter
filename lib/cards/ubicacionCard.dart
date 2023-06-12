@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ponymapscross/main.dart';
+import 'package:sizer/sizer.dart';
 
 class UbicacionCard extends StatefulWidget {
   final String title;
@@ -65,14 +66,16 @@ class _ExpandableCardState extends State<UbicacionCard> {
               ),
             ),
             ListTile(
-              title: Text(
+              leading:  Text(
                 widget.title,
-                style: const TextStyle(fontSize: 40.0),
+                style: TextStyle(fontSize: 30.sp),
               ),
-              subtitle: Text(
+              title: Text(
                 widget.subtitle,
-                style: const TextStyle(fontSize: 20.0),
+                style: TextStyle(fontSize: 18.sp),
               ),
+              minVerticalPadding: 10.0,
+
             ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -80,9 +83,21 @@ class _ExpandableCardState extends State<UbicacionCard> {
               height: isExpanded ? null : 0,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  widget.areas,
-                ),
+                child: Column(
+                  children: [
+
+                    ExpansionTile(
+                      leading: Icon( Icons.layers),
+                      title: Text('Departamentos'),
+                      children: <Widget>[
+                        Text(widget.areas),
+                      ],
+
+                    ),
+
+                  ],
+
+                )
               ),
             ),
           ],
