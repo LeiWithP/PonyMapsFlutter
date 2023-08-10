@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ponymapscross/constants/app_constants.dart';
 import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../components/ubicacion_selector.dart';
 import '../constants/app_keys.dart';
 import '../models/map_marker_model.dart';
@@ -27,7 +28,6 @@ class Mapa extends StatefulWidget {
 
   @override
   _MapaState createState() => _MapaState();
-
 }
 
 class _MapaState extends State<Mapa> with TickerProviderStateMixin {
@@ -62,21 +62,14 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
   List<MapMarker> markers = [];
 
-  /*
-  origin = places[dataOrigin]!.location;
-  destino = places[dataDestino]!.location;*/
-
   late ValueNotifier<String> location;
 
   void updateOrigin(String dataOrigin) {
     this.dataOrigin = dataOrigin;
-    print("${this.dataOrigin}hola");
   }
 
   void updateDestino(String dataDestino) {
     this.dataDestino = dataDestino;
-
-    print(this.dataDestino + "hola");
   }
 
   @override
@@ -87,8 +80,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
       markers = await loadMapMarkers();
 
       for (int i = 0; i < markers.length; i++) {
-        //print(mapMarkers[i].title);
-        //print("Bruhhhhhhh");
         places[markers[i].title] = markers[i];
       }
     });
@@ -103,16 +94,12 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
     });
   }
 
-
   Future<List<MapMarker>> loadMapMarkers() async {
     String jsonString = await _loadJsonAsset(); // Lee el archivo JSON
 
     final jsonData = json.decode(jsonString); // Decodifica el JSON
 
     for (var item in jsonData) {
-      //var lat = double.tryParse(item['Lat']);
-      //var lng = double.tryParse(item['Lng']);
-      print("Bruhhhhhhh");
 
       MapMarker marker = MapMarker(
         image: item['Image'] as String,
@@ -120,11 +107,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
         description: item['Descripcion'] as String,
         location: LatLng(item['Lat'], item['Lng']),
       );
-      /*
-      print(item['Nombre']);
-      print(item['Descripcion']);
-      print(item['Lat']  );
-      print(item['Lng']  );*/
 
       places[marker.title] = marker;
 
@@ -160,39 +142,36 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   _animatedMapMove(AppConstants.tecCampus1, 14.5);
                 },
               ),
+              nonRotatedChildren: [
+                // This does NOT fulfill Mapbox's requirements for attribution
+                // See https://docs.mapbox.com/help/getting-started/attribution/
+                RichAttributionWidget(
+                  alignment: AttributionAlignment.bottomLeft,
 
-              /*
-          nonRotatedChildren: [
-            // This does NOT fulfill Mapbox's requirements for attribution
-            // See https://docs.mapbox.com/help/getting-started/attribution/
+                  attributions: [
+                    LogoSourceAttribution(
+                      SvgPicture.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/1/1f/Mapbox_logo_2019.svg',
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(Colors.blue, BlendMode.srcIn),
+                      ),
+                    ),
+                    TextSourceAttribution(
+                      'OpenStreetMap contributors',
+                      onTap: () => launchUrl(Uri.parse(
+                          "https://www.openstreetmap.org/copyright")),
+                    ),
+                    TextSourceAttribution(
+                      'Mapbox',
+                      onTap: () => launchUrl(Uri.parse(
+                          "https://docs.mapbox.com/help/getting-started/attribution/")),
+                    )
 
-            AttributionWidget.defaultWidget(
-              alignment: Alignment.bottomLeft,
-              source: '© Mapbox © OpenStreetMap',
-              onSourceTapped: () async {
-                // Requires 'url_launcher'
-                if (!await launchUrl(Uri.parse(
-                    "https://docs.mapbox.com/help/getting-started/attribution/"))) {
-                  if (kDebugMode) print('Could not launch URL');
-                }
-              },
-            ),
-          ],*/
+                  ],
+
+                )
+              ],
               children: [
-                /* TileLayer(
-                    maxNativeZoom: 22,
-                    /*urlTemplate: "https://api.mapbox.com/styles/v1/angels0107/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-                 urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  additionalOptions: const {
-                    'mapStyleId': AppKeys.mapBoxStyleId,
-                    'accessToken': AppKeys.mapBoxAccessToken,
-                  },*/
-                    userAgentPackageName: 'com.example.app',
-                    tileProvider: CustomTileProvider(),
-                    urlTemplate: '',
-
-                    //tileProvider: CachedNetworkTileProvider(),
-                    ),*/
                 TileLayer(
                   tileProvider: CustomTileProvider(),
                   urlTemplate:
@@ -205,9 +184,9 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                   tileBuilder: (
                     context,
                     Widget tileWidget,
-                    Tile tile,
+                    TileImage tile,
                   ) {
-                    final coords = tile.coords;
+                    final coords = tile.coordinates;
                     var urlTemplate =
                         "https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token=${AppKeys.mapBoxAccessToken}";
                     //var urlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -242,7 +221,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                             onDoubleTap: () {
                               selectedIndex = i;
                               _animatedMapMove(markers[i].location, 18.4);
-
                               showDialog(
                                   context: context,
                                   builder: (_) => Dialog(
@@ -256,14 +234,16 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               ClipRRect(
-                                                borderRadius: const BorderRadius.only(
-                                                  topLeft: Radius.circular(20.0),
-                                                  topRight: Radius.circular(20.0),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(20.0),
+                                                  topRight:
+                                                      Radius.circular(20.0),
                                                 ),
-                                                child:
-                                                Image.asset(
-                                                markers[i].image!,
-                                                fit: BoxFit.contain,
+                                                child: Image.asset(
+                                                  markers[i].image!,
+                                                  fit: BoxFit.contain,
                                                 ),
                                               ),
                                               Text(
@@ -272,22 +252,22 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                                                     fontSize: 40),
                                               ),
                                               Container(
-                                                width: 200, // Set the desired width of the container
+                                                width: 200,
+                                                // Set the desired width of the container
                                                 child: Text(
                                                   markers[i].description,
-                                                  style: TextStyle(fontSize: 20),
-                                                  overflow: TextOverflow.ellipsis, // Specify the overflow behavior
-                                                  maxLines: 2, // Define the maximum number of lines to display
+                                                  style:
+                                                      TextStyle(fontSize: 20),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  // Specify the overflow behavior
+                                                  maxLines:
+                                                      2, // Define the maximum number of lines to display
                                                 ),
                                               ),
                                               Container(
                                                 height: 20.0,
                                               ),
-                                              /*ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text("Cerrar"))*/
                                             ],
                                           ),
                                         ),
@@ -296,35 +276,23 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                             onTap: () {
                               selectedIndex = i;
                               _animatedMapMove(markers[i].location, 18.4);
-
-                              /* Future.delayed(const Duration(seconds: 1), () {
-                                // <-- Delay here
-                                setState(() {
-                                  selectedIndex = i;
-                                });
-                              });*/
                             },
                             onLongPress: () {
                               ScaffoldMessenger.of(_)
                                   .showSnackBar(const SnackBar(
                                 content: Text('Long Tap'),
                               ));
-                            },
-                            /*
+                            },/*
                             child: AnimatedScale(
                                 duration: const Duration(microseconds: 500),
-                                scale: (selectedIndex == null)
-                                    ? 0.7
-                                    : (selectedIndex == i)
-                                        ? 1
-                                        : 0.7,
+                                scale: selectedIndex == i ? 1 : 0.7,
                                 child: AnimatedOpacity(
                                   duration: const Duration(milliseconds: 500),
                                   opacity: (selectedIndex == null)
                                       ? 1
                                       : (selectedIndex == i)
-                                          ? 1
-                                          : 0.5,
+                                      ? 1
+                                      : 0.5,
                                   child: SvgPicture.asset(
                                     'assets/icons/map_marker.svg',
                                   ),
@@ -337,17 +305,6 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
                       ),
                   ],
                 ),
-                /*
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: LatLng(19.72176, -101.18544),
-                      width: 80,
-                      height: 80,
-                      builder: (context) => FlutterLogo()
-                    ),
-                  ],
-                ),*/
               ],
             ),
             Positioned(
@@ -632,7 +589,7 @@ class _MapaState extends State<Mapa> with TickerProviderStateMixin {
 
 class CustomTileProvider extends TileProvider {
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) {
+  ImageProvider getImage(TileCoordinates coords, TileLayer options) {
     final url =
         'https://api.mapbox.com/styles/v1/angels0107/${AppKeys.mapBoxStyleId}/tiles/256/${coords.z.toInt()}/${coords.x.toInt()}/${coords.y.toInt()}@2x?access_token=${AppKeys.mapBoxAccessToken}';
     //'https://tile.openstreetmap.org/${coords.z.toInt()}/${coords.x.toInt()}/${coords.y.toInt()}.png';
